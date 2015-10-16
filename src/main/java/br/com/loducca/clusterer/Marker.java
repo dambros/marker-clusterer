@@ -16,30 +16,16 @@ public class Marker {
 		this.type = type;
 	}
 
-	public Marker() {
-	}
-
 	public double getLat() {
 		return lat;
-	}
-
-	public void setLat(double lat) {
-		this.lat = lat;
 	}
 
 	public double getLng() {
 		return lng;
 	}
 
-	public void setLng(double lng) {
-		this.lng = lng;
-	}
-
 	public MarkerType getType() {
 		return type;
 	}
 
-	public void setType(MarkerType type) {
-		this.type = type;
-	}
 }

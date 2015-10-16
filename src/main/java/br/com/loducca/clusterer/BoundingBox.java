@@ -22,32 +22,16 @@ public class BoundingBox {
 		return topRight;
 	}
 
-	public void setTopRight(Marker topRight) {
-		this.topRight = topRight;
-	}
-
 	public Marker getBottomRight() {
 		return bottomRight;
-	}
-
-	public void setBottomRight(Marker bottomRight) {
-		this.bottomRight = bottomRight;
 	}
 
 	public Marker getTopLeft() {
 		return topLeft;
 	}
 
-	public void setTopLeft(Marker topLeft) {
-		this.topLeft = topLeft;
-	}
-
 	public Marker getBottomLeft() {
 		return bottomLeft;
-	}
-
-	public void setBottomLeft(Marker bottomLeft) {
-		this.bottomLeft = bottomLeft;
 	}
 
 	@Override

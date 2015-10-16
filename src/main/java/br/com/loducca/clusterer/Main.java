@@ -1,7 +1,6 @@
 package br.com.loducca.clusterer;
 
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import java.util.List;
  */
 public class Main {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
 		double distance = 5; //kms
 
 		double lat = -13.235004;
