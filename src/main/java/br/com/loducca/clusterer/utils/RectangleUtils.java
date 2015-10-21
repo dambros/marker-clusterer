@@ -20,12 +20,6 @@ public class RectangleUtils {
 		double width = box.getTopRight().getLng() - box.getTopLeft().getLng();
 		double height = box.getTopRight().getLat() - box.getBottomRight().getLat();
 
-		System.out.println(box);
-
 		return new Rectangle2D.Double(minLat, minLng, width, height);
-	}
-
-	public static Boolean intersects(Rectangle2D r1, Rectangle2D r2) {
-		return r1.intersects(r2);
 	}
 }

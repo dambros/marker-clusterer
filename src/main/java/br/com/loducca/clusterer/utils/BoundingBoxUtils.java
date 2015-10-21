@@ -29,7 +29,6 @@ public class BoundingBoxUtils {
 		Marker tempBottomRight = getBoundaryMarker(centerMarker, distance, BOTTOM_RIGHT_ANGLE);
 		Marker tempTopLeft = getBoundaryMarker(centerMarker, distance, TOP_LEFT_ANGLE);
 		Marker tempBottomLeft = getBoundaryMarker(centerMarker, distance, BOTTOM_LEFT_ANGLE);
-//
 		double minLat = tempTopLeft.getLat() < tempBottomLeft.getLat() ? tempTopLeft.getLat() : tempBottomLeft.getLat();
 		double maxLat = tempTopLeft.getLat() > tempBottomLeft.getLat() ? tempTopLeft.getLat() : tempBottomLeft.getLat();
 		double minLng = tempTopLeft.getLng() < tempTopRight.getLng() ? tempTopLeft.getLng() : tempTopRight.getLng();

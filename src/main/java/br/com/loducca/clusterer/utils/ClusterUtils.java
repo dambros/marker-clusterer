@@ -1,11 +1,9 @@
-package br.com.loducca.clusterer;
+package br.com.loducca.clusterer.utils;
 
 import br.com.loducca.clusterer.model.Cluster;
 import br.com.loducca.clusterer.model.Marker;
 import br.com.loducca.clusterer.model.MarkerType;
 import br.com.loducca.clusterer.model.ZoomLevel;
-import br.com.loducca.clusterer.utils.PropertiesHelper;
-import br.com.loducca.clusterer.utils.RectangleUtils;
 import ch.hsr.geohash.GeoHash;
 
 import java.awt.geom.Rectangle2D;
@@ -16,9 +14,9 @@ import java.util.List;
 
 /**
  * Created by: dambros
- * Date: 10/15/2015
+ * Date: 10/21/2015
  */
-public class Main {
+public class ClusterUtils {
 
 	private static final String DB_PATH;
 	private static final String CSV_SPLIT = ",";
@@ -27,20 +25,15 @@ public class Main {
 		DB_PATH = PropertiesHelper.getProperties("db.dump.path");
 	}
 
-	public static void main(String[] args) {
-
-		//TODO LIST
-		// remover montueira de código do main;
-		// se cluster size > 1 tipo = CLUSTER, senao PIN
-
-		List<Cluster> clusters = new ArrayList<Cluster>();
+	public static List<Cluster> getClusters() {
+		List<Cluster> clusters = new ArrayList<>();
 
 		try {
 			BufferedReader br = null;
-//			for (ZoomLevel level : ZoomLevel.values()) {
+			for (ZoomLevel level : ZoomLevel.values()) {
 				String line;
-				 br = new BufferedReader(new FileReader(DB_PATH));
-				List<Integer> linesRemoved = new ArrayList<Integer>();
+				br = new BufferedReader(new FileReader(DB_PATH));
+				List<Integer> linesRemoved = new ArrayList<>();
 				int lineNumber = 1;
 
 				while ((line = br.readLine()) != null) {
@@ -55,11 +48,11 @@ public class Main {
 					linesRemoved.add(lineNumber);
 
 					String[] pin = line.split(CSV_SPLIT);
-					List<Marker> markers = new ArrayList<Marker>();
+					List<Marker> markers = new ArrayList<>();
 
 					//add current pin to the list of marker for the current cluster
 					markers.add(new Marker(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), Long.parseLong(pin[2])));
-					Rectangle2D mainRect = RectangleUtils.getRectangle(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), ZoomLevel.Z1.getDistance());
+					Rectangle2D mainRect = RectangleUtils.getRectangle(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), level.getDistance());
 
 					BufferedReader newReader = new BufferedReader(new FileReader(DB_PATH));
 					String newLine;
@@ -72,7 +65,7 @@ public class Main {
 						}
 
 						String[] tempPin = newLine.split(CSV_SPLIT);
-						Rectangle2D rect = RectangleUtils.getRectangle(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), ZoomLevel.Z1.getDistance());
+						Rectangle2D rect = RectangleUtils.getRectangle(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), level.getDistance());
 						if (rect.intersects(mainRect)) {
 							markers.add(new Marker(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), Long.parseLong(tempPin[2])));
 							linesRemoved.add(tempLineNumber);
@@ -84,14 +77,22 @@ public class Main {
 					GeoHash hash = GeoHash.withCharacterPrecision(markers.get(0).getLat(), markers.get(0).getLng(), 1);
 					MarkerType type = markers.size() > 1 ? MarkerType.CLUSTER : MarkerType.PIN;
 					Integer clusterSize = markers.size() <= 1 ? null : markers.size();
-					clusters.add(new Cluster(ZoomLevel.Z1, markers.get(0), clusterSize, hash.toBase32(), type));
+					Marker marker = markers.get(0);
+
+					//clusters shouldn't show projectId
+					if (type.equals(MarkerType.CLUSTER)) {
+						marker.setProjectId(null);
+					}
+
+					clusters.add(new Cluster(level, marker, clusterSize, hash.toBase32(), type));
 					lineNumber++;
 				}
-//			}
+			}
 			br.close();
-			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		return clusters;
 	}
 }

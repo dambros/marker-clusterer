@@ -32,4 +32,8 @@ public enum ZoomLevel {
 	public float getDistance() {
 		return distance;
 	}
+
+	public int getOrdinal() {
+		return this.ordinal();
+	}
 }
