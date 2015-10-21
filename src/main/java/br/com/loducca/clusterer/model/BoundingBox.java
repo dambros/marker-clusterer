@@ -1,4 +1,4 @@
-package br.com.loducca.clusterer;
+package br.com.loducca.clusterer.model;
 
 /**
  * Created by: dambros

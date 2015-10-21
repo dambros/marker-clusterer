@@ -1,4 +1,8 @@
-package br.com.loducca.clusterer;
+package br.com.loducca.clusterer.utils;
+
+import br.com.loducca.clusterer.model.BoundingBox;
+import br.com.loducca.clusterer.model.Marker;
+import br.com.loducca.clusterer.model.MarkerType;
 
 import java.awt.geom.Rectangle2D;
 

@@ -1,6 +1,16 @@
 package br.com.loducca.clusterer;
 
+import br.com.loducca.clusterer.model.Cluster;
+import br.com.loducca.clusterer.model.Marker;
+import br.com.loducca.clusterer.model.MarkerType;
+import br.com.loducca.clusterer.model.ZoomLevel;
+import br.com.loducca.clusterer.utils.PropertiesHelper;
+import br.com.loducca.clusterer.utils.RectangleUtils;
+import ch.hsr.geohash.GeoHash;
+
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,37 +20,75 @@ import java.util.List;
  */
 public class Main {
 
+	private static final String DB_PATH;
+	private static final String CSV_SPLIT = ",";
+
+	static {
+		DB_PATH = PropertiesHelper.getProperties("db.dump.path");
+	}
+
 	public static void main(String[] args) {
-		double distance = 5; //kms
 
-		double lat = -13.235004;
-		double lng = -50.92528;
-		Rectangle2D r1 = RectangleUtils.getRectangle(lat, lng, distance);
+		//TODO LIST
+		// remover montueira de código do main;
+		// cluster não precisa de lista de markers, apenas do Marker inicial (posicao do cluster/pin) e da quantidade de marcadores;
+		// se cluster size > 1 tipo = CLUSTER, senao PIN
 
-		double lat2 = -13.255004;
-		double lng2 = -50.95528;
-		Rectangle2D r2 = RectangleUtils.getRectangle(lat2, lng2, distance);
+		List<Cluster> clusters = new ArrayList<Cluster>();
 
-		double lat3 = -13.0;
-		double lng3 = -50.0;
-		Rectangle2D r3 = RectangleUtils.getRectangle(lat3, lng3, distance);
+		try {
+			for (ZoomLevel level : ZoomLevel.values()) {
 
-		double lat4 = -12.255004;
-		double lng4 = -51.95528;
-		Rectangle2D r4 = RectangleUtils.getRectangle(lat4, lng4, distance);
+				String line;
+				BufferedReader br = new BufferedReader(new FileReader(DB_PATH));
+				List<Integer> linesRemoved = new ArrayList<Integer>();
+				int lineNumber = 1;
 
-		double lat5 = -11.755004;
-		double lng5 = -50.95528;
-		Rectangle2D r5 = RectangleUtils.getRectangle(lat5, lng5, distance);
+				while ((line = br.readLine()) != null) {
 
-		List<Rectangle2D> rects = new ArrayList<Rectangle2D>();
-		rects.add(r2);
-		rects.add(r3);
-		rects.add(r4);
-		rects.add(r5);
+					//ignore that line if it is marked as removed
+					if (linesRemoved.contains(lineNumber)) {
+						lineNumber++;
+						continue;
+					}
 
-		for (Rectangle2D r : rects) {
-			System.out.println(RectangleUtils.intersects(r1, r).toString());
+					//currentLine shouldn't be read again in the future
+					linesRemoved.add(lineNumber);
+
+					String[] pin = line.split(CSV_SPLIT);
+					List<Marker> markers = new ArrayList<Marker>();
+
+					//add current pin to the list of marker for the current cluster
+					markers.add(new Marker(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), MarkerType.PIN, Long.parseLong(pin[2])));
+					Rectangle2D mainRect = RectangleUtils.getRectangle(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), level.getDistance());
+
+					BufferedReader newReader = new BufferedReader(new FileReader(DB_PATH));
+					String newLine;
+					int tempLineNumber = 1;
+					while ((newLine = newReader.readLine()) != null) {
+						//ignore that line if it is marked as removed and all lines previously to the current one
+						if (linesRemoved.contains(tempLineNumber) || tempLineNumber <= lineNumber) {
+							tempLineNumber++;
+							continue;
+						}
+
+						String[] tempPin = newLine.split(CSV_SPLIT);
+						Rectangle2D rect = RectangleUtils.getRectangle(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), level.getDistance());
+						if (rect.intersects(mainRect)) {
+							markers.add(new Marker(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), MarkerType.PIN, Long.parseLong(tempPin[2])));
+							linesRemoved.add(tempLineNumber);
+						}
+						tempLineNumber++;
+					}
+					newReader.close();
+
+					GeoHash hash = GeoHash.withCharacterPrecision(markers.get(0).getLat(), markers.get(0).getLng(), 1);
+					clusters.add(new Cluster(level, markers, hash.toBase32()));
+					lineNumber++;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }
