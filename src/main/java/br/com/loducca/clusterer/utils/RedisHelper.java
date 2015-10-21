@@ -6,7 +6,7 @@ import redis.clients.jedis.Jedis;
  * Created by: dambros
  * Date: 10/21/2015
  */
-public class RedisUtils {
+public class RedisHelper {
 
 	private static Jedis jedis;
 

@@ -2,7 +2,7 @@ package br.com.loducca.clusterer;
 
 import br.com.loducca.clusterer.model.Cluster;
 import br.com.loducca.clusterer.utils.ClusterUtils;
-import br.com.loducca.clusterer.utils.RedisUtils;
+import br.com.loducca.clusterer.utils.RedisHelper;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -42,7 +42,7 @@ public class TaskStarter {
 
 		for (Map.Entry<String, List<Object>> entry : map.entrySet()) {
 			String json = gson.toJson(entry.getValue());
-			RedisUtils.setPair(entry.getKey(), json);
+			RedisHelper.setPair(entry.getKey(), json);
 		}
 	}
 }
