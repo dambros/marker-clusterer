@@ -2,7 +2,6 @@ package br.com.loducca.clusterer.utils;
 
 import br.com.loducca.clusterer.model.BoundingBox;
 import br.com.loducca.clusterer.model.Marker;
-import br.com.loducca.clusterer.model.MarkerType;
 
 import java.awt.geom.Rectangle2D;
 
@@ -13,7 +12,7 @@ import java.awt.geom.Rectangle2D;
 public class RectangleUtils {
 
 	public static Rectangle2D getRectangle(double lat, double lng, double distance) {
-		Marker m = new Marker(lat, lng, MarkerType.PIN);
+		Marker m = new Marker(lat, lng);
 		BoundingBox box = BoundingBoxUtils.calculate(m, distance);
 
 		double minLat = box.getTopLeft().getLat() < box.getBottomLeft().getLat() ? box.getTopLeft().getLat() : box.getBottomLeft().getLat();

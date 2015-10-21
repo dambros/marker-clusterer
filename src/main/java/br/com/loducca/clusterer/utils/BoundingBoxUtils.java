@@ -2,9 +2,13 @@ package br.com.loducca.clusterer.utils;
 
 import br.com.loducca.clusterer.model.BoundingBox;
 import br.com.loducca.clusterer.model.Marker;
-import br.com.loducca.clusterer.model.MarkerType;
 
-import static java.lang.Math.*;
+import static java.lang.Math.asin;
+import static java.lang.Math.atan2;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
+import static java.lang.Math.toDegrees;
+import static java.lang.Math.toRadians;
 
 /**
  * Created by: dambros
@@ -20,10 +24,21 @@ public class BoundingBoxUtils {
 
 	//calculate a square boundingbox
 	public static BoundingBox calculate(Marker centerMarker, double distance) {
-		Marker topRight = getBoundaryMarker(centerMarker, distance, TOP_RIGHT_ANGLE);
-		Marker bottomRight = getBoundaryMarker(centerMarker, distance, BOTTOM_RIGHT_ANGLE);
-		Marker topLeft = getBoundaryMarker(centerMarker, distance, TOP_LEFT_ANGLE);
-		Marker bottomLeft = getBoundaryMarker(centerMarker, distance, BOTTOM_LEFT_ANGLE);
+		Marker tempTopRight = getBoundaryMarker(centerMarker, distance, TOP_RIGHT_ANGLE);
+		Marker tempBottomRight = getBoundaryMarker(centerMarker, distance, BOTTOM_RIGHT_ANGLE);
+		Marker tempTopLeft = getBoundaryMarker(centerMarker, distance, TOP_LEFT_ANGLE);
+		Marker tempBottomLeft = getBoundaryMarker(centerMarker, distance, BOTTOM_LEFT_ANGLE);
+
+		double minLat = tempTopLeft.getLat() < tempBottomLeft.getLat() ? tempTopLeft.getLat() : tempBottomLeft.getLat();
+		double maxLat = tempTopLeft.getLat() > tempBottomLeft.getLat() ? tempTopLeft.getLat() : tempBottomLeft.getLat();
+		double minLng = tempTopLeft.getLng() < tempTopRight.getLng() ? tempTopLeft.getLng() : tempTopRight.getLng();
+		double maxLng = tempTopLeft.getLng() > tempTopRight.getLng() ? tempTopLeft.getLng() : tempTopRight.getLng();
+
+		Marker topRight = new Marker(maxLat, maxLng);
+		Marker bottomRight = new Marker(minLat, maxLng);
+		Marker topLeft = new Marker(maxLat, minLng);
+		Marker bottomLeft = new Marker(minLat, minLng);
+
 		return new BoundingBox(topRight, bottomRight, topLeft, bottomLeft);
 	}
 
@@ -33,12 +48,12 @@ public class BoundingBoxUtils {
 
 	private static double getLongitude(double distance, double lat, double lng, double angle) {
 		double newLat = getLatitude(distance, lat, angle);
-		return toDegrees(toRadians(lng) + atan2(sin(toRadians(angle)) * sin(distance / RADIUS) * cos(toRadians(lat)), cos(distance / RADIUS) - sin(toRadians(lat)) * sin(toRadians(newLat))));
+		return toDegrees(toRadians(lng) + atan2(sin(toRadians(angle)) * sin(distance / RADIUS) * cos(toRadians(lat)), cos(distance / RADIUS) - sin(toRadians(lat)) * sin(toRadians(lat))));
 	}
 
 	private static Marker getBoundaryMarker(Marker centerMarker, double distance, double angle) {
 		double lat = getLatitude(distance, centerMarker.getLat(), angle);
 		double lng = getLongitude(distance, centerMarker.getLat(), centerMarker.getLng(), angle);
-		return new Marker(lat, lng, MarkerType.BOUNDARY);
+		return new Marker(lat, lng);
 	}
 }

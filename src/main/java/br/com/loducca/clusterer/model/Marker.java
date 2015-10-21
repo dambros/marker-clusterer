@@ -8,19 +8,16 @@ public class Marker {
 
 	private double lat;
 	private double lng;
-	private MarkerType type;
 	private Long projectId;
 
-	public Marker(double lat, double lng, MarkerType type) {
+	public Marker(double lat, double lng) {
 		this.lat = lat;
 		this.lng = lng;
-		this.type = type;
 	}
 
-	public Marker(double lat, double lng, MarkerType type, Long projectId) {
+	public Marker(double lat, double lng, Long projectId) {
 		this.lat = lat;
 		this.lng = lng;
-		this.type = type;
 		this.projectId = projectId;
 	}
 
@@ -30,10 +27,6 @@ public class Marker {
 
 	public double getLng() {
 		return lng;
-	}
-
-	public MarkerType getType() {
-		return type;
 	}
 
 	public Long getProjectId() {

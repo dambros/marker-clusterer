@@ -31,16 +31,15 @@ public class Main {
 
 		//TODO LIST
 		// remover montueira de código do main;
-		// cluster não precisa de lista de markers, apenas do Marker inicial (posicao do cluster/pin) e da quantidade de marcadores;
 		// se cluster size > 1 tipo = CLUSTER, senao PIN
 
 		List<Cluster> clusters = new ArrayList<Cluster>();
 
 		try {
-			for (ZoomLevel level : ZoomLevel.values()) {
-
+			BufferedReader br = null;
+//			for (ZoomLevel level : ZoomLevel.values()) {
 				String line;
-				BufferedReader br = new BufferedReader(new FileReader(DB_PATH));
+				 br = new BufferedReader(new FileReader(DB_PATH));
 				List<Integer> linesRemoved = new ArrayList<Integer>();
 				int lineNumber = 1;
 
@@ -59,8 +58,8 @@ public class Main {
 					List<Marker> markers = new ArrayList<Marker>();
 
 					//add current pin to the list of marker for the current cluster
-					markers.add(new Marker(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), MarkerType.PIN, Long.parseLong(pin[2])));
-					Rectangle2D mainRect = RectangleUtils.getRectangle(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), level.getDistance());
+					markers.add(new Marker(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), Long.parseLong(pin[2])));
+					Rectangle2D mainRect = RectangleUtils.getRectangle(Double.parseDouble(pin[0]), Double.parseDouble(pin[1]), ZoomLevel.Z1.getDistance());
 
 					BufferedReader newReader = new BufferedReader(new FileReader(DB_PATH));
 					String newLine;
@@ -73,9 +72,9 @@ public class Main {
 						}
 
 						String[] tempPin = newLine.split(CSV_SPLIT);
-						Rectangle2D rect = RectangleUtils.getRectangle(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), level.getDistance());
+						Rectangle2D rect = RectangleUtils.getRectangle(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), ZoomLevel.Z1.getDistance());
 						if (rect.intersects(mainRect)) {
-							markers.add(new Marker(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), MarkerType.PIN, Long.parseLong(tempPin[2])));
+							markers.add(new Marker(Double.parseDouble(tempPin[0]), Double.parseDouble(tempPin[1]), Long.parseLong(tempPin[2])));
 							linesRemoved.add(tempLineNumber);
 						}
 						tempLineNumber++;
@@ -83,10 +82,14 @@ public class Main {
 					newReader.close();
 
 					GeoHash hash = GeoHash.withCharacterPrecision(markers.get(0).getLat(), markers.get(0).getLng(), 1);
-					clusters.add(new Cluster(level, markers, hash.toBase32()));
+					MarkerType type = markers.size() > 1 ? MarkerType.CLUSTER : MarkerType.PIN;
+					Integer clusterSize = markers.size() <= 1 ? null : markers.size();
+					clusters.add(new Cluster(ZoomLevel.Z1, markers.get(0), clusterSize, hash.toBase32(), type));
 					lineNumber++;
 				}
-			}
+//			}
+			br.close();
+			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
